@@ -1,0 +1,26 @@
+{
+  "name": "gulp-alias-combo",
+  "version": "0.0.1",
+  "description": "一个根据alias配置合并js文件的gulp插件，合并时会自动提取模块间的依赖",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:PeterMu/gulp-alias-combo.git"
+  },
+  "keywords": [
+    "gulp",
+    "alias",
+    "combo"
+  ],
+  "author": "PeterMu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PeterMu/gulp-alias-combo/issues"
+  },
+  "homepage": "https://github.com/PeterMu/gulp-alias-combo",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-util": "^3.0.5",
+    "through2": "^0.6.5"
+  }
+}
