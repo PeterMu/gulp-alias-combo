@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/PeterMu/gulp-alias-combo",
   "devDependencies": {
-    "gulp": "^3.9.0",
+    "gulp": "^3.9.0"
+  },
+  "dependencies": {
     "gulp-util": "^3.0.5",
     "through2": "^0.6.5"
   }
