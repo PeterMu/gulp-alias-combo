@@ -40,6 +40,12 @@ gulp.task('combo', function(){
 
 1. baseUrl和alias都是必须配置项，baseUrl和alias配置的路径合并后就是模块的绝对路径。
 2. 如果在alias中没有配置的别名，在合并时会忽略，不会进行合并操作。
+3. 要合并的模块不要指定模块ID，合并的时候会根据alias配置设置模块的ID，模块要使用CommonJS标准写法。即：
+```
+defind(function(require, exports, module){
+  //code
+})
+```
 
 ### 运行
 ```
