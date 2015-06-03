@@ -9,6 +9,7 @@ var gutil = require('gulp-util')
 var fs = require('fs')
 var PLUGIN_NAME = 'gulp-alias-combo'
 var requireReg = /require\s*\(\s*(["'])(.+?)\1\s*\)/g
+var commentReg = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg
 
 /*
  * 提取模块中的依赖
@@ -18,6 +19,7 @@ var requireReg = /require\s*\(\s*(["'])(.+?)\1\s*\)/g
  * return  提取的依赖存到options里 
  */
 function analyseDeps(content, options, filePath){
+	content = content.replace(commentReg, '')
 	var requires = content.match(requireReg)
 	if(requires){
 		options[filePath] = options[filePath] || {}
@@ -69,7 +71,7 @@ function mergePath(moduleId, options){
  */
 function tranform(moduleId, filePath){
 	var content = fs.readFileSync(filePath).toString()
-	content = content.replace('define(', 'define("' + moduleId + '", ')
+	content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
 	return new Buffer(content)
 }
 
