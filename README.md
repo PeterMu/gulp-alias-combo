@@ -1,6 +1,5 @@
 # gulp-alias-combo
 
-***
 > 一个根据alias配置合并js文件的gulp插件，合并时会自动提取模块间的依赖
 
 ## Install
@@ -25,14 +24,14 @@ var aliasCombo = require('gulp-alias-combo')
     
 gulp.task('combo', function(){
     return gulp.src('src/apps/*.js')
-		.pipe(aliasCombo({
-			baseUrl: __dirname + '/src/',
-        	alias: {
-        		'monitor/underscore': "libs/underscore/1.8.3/underscore.js",
-		        'monitor/backbone': "libs/backbone/1.1.2/backbone.js",
-		        'monitor/project': "common/project"
-        	}
-		}))
+        .pipe(aliasCombo({
+            baseUrl: __dirname + '/src/',
+            alias: {
+                'monitor/underscore': "libs/underscore/1.8.3/underscore.js",
+                'monitor/backbone': "libs/backbone/1.1.2/backbone.js",
+                'monitor/project': "common/project"
+            }
+        }))
         .pipe(gulp.dest('dest/apps'));
 })
 ```

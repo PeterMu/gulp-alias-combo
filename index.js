@@ -19,21 +19,21 @@ var commentReg = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg
  * return  提取的依赖存到options里 
  */
 function analyseDeps(content, options, filePath){
-	content = content.replace(commentReg, '')
-	var requires = content.match(requireReg)
-	if(requires){
-		options[filePath] = options[filePath] || {}
-		requires.forEach(function(dep){
-			var moduleId = dep.substring(dep.indexOf('(') + 1, dep.indexOf(')')).trim()
-			moduleId = moduleId.substring(1, moduleId.length-1)
-			if(moduleId){
-				if(options.alias && options.alias[moduleId]){
-					options[filePath][moduleId] = mergePath(moduleId, options)
-					analyseDeps(readModule(moduleId, options), options, filePath)
-				}
-			}
-		})
-	}
+    content = content.replace(commentReg, '')
+    var requires = content.match(requireReg)
+    if(requires){
+        options[filePath] = options[filePath] || {}
+        requires.forEach(function(dep){
+            var moduleId = dep.substring(dep.indexOf('(') + 1, dep.indexOf(')')).trim()
+            moduleId = moduleId.substring(1, moduleId.length-1)
+            if(moduleId){
+                if(options.alias && options.alias[moduleId]){
+                    options[filePath][moduleId] = mergePath(moduleId, options)
+                    analyseDeps(readModule(moduleId, options), options, filePath)
+                }
+            }
+        })
+    }
 }
 
 /*
@@ -43,14 +43,14 @@ function analyseDeps(content, options, filePath){
  * return { String } 模块内容 
  */
 function readModule(moduleId, options){
-	var content,
-		filePath = mergePath(moduleId, options)
-	try{
-		content = fs.readFileSync(filePath)
-		return content.toString()
-	}catch(e){
-		gutil.log(gutil.colors.red('Can not find ' + moduleId + ':[' + filePath + ']'))
-	}
+    var content,
+        filePath = mergePath(moduleId, options)
+    try{
+        content = fs.readFileSync(filePath)
+        return content.toString()
+    }catch(e){
+        gutil.log(gutil.colors.red('Can not find ' + moduleId + ':[' + filePath + ']'))
+    }
 }
 
 /*
@@ -60,7 +60,7 @@ function readModule(moduleId, options){
  * return { String } 文件地址 
  */
 function mergePath(moduleId, options){
-	return options.baseUrl + options.alias[moduleId]
+    return options.baseUrl + options.alias[moduleId]
 }
 
 /*
@@ -70,9 +70,9 @@ function mergePath(moduleId, options){
  * return { String } 文件地址
  */
 function tranform(moduleId, filePath){
-	var content = fs.readFileSync(filePath).toString()
-	content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
-	return new Buffer(content)
+    var content = fs.readFileSync(filePath).toString()
+    content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
+    return new Buffer(content)
 }
 
 /*
@@ -82,11 +82,11 @@ function tranform(moduleId, filePath){
  * return { Buffer } 合并后的Buffer
  */
 function concatDeps(deps, filePath){
-	var contents = fs.readFileSync(filePath)
-	for(var key in deps){
-		contents = contents + '\n' + tranform(key, deps[key])
-	}
-	return new Buffer(contents)
+    var contents = fs.readFileSync(filePath)
+    for(var key in deps){
+        contents = contents + '\n' + tranform(key, deps[key])
+    }
+    return new Buffer(contents)
 }
 
 /*
@@ -106,10 +106,10 @@ function inArray(array, e){
  * param { Object } e 依赖的模块
  */
 function buildLog(filePath, deps){
-	gutil.log(gutil.colors.green('build ' + filePath + ':'))
-	for(var key in deps){
-		console.log('  ' + key + ':[' + deps[key] + ']')
-	}
+    gutil.log(gutil.colors.green('build ' + filePath + ':'))
+    for(var key in deps){
+        console.log('  ' + key + ':[' + deps[key] + ']')
+    }
 }
 
 /*
@@ -117,24 +117,24 @@ function buildLog(filePath, deps){
  * param { Object } options 配置参数，必须参数
  */
 function combo(options){
-	return through.obj(function(file, enc, callback){
-		if(!options){
-			gutil.log(gutil.colors.red(PLUGIN_NAME, 'The options param is required'))
-			return callback()
-		}
-		if(!options.alias){
-			gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option alias is required'))
-			return callback()
-		}
-		if(!options.baseUrl){
-			gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option baseUrl is required'))
-			return callback()
-		}
+    return through.obj(function(file, enc, callback){
+        if(!options){
+            gutil.log(gutil.colors.red(PLUGIN_NAME, 'The options param is required'))
+            return callback()
+        }
+        if(!options.alias){
+            gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option alias is required'))
+            return callback()
+        }
+        if(!options.baseUrl){
+            gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option baseUrl is required'))
+            return callback()
+        }
         if(file.isBuffer()){
-        	analyseDeps(file.contents.toString(), options, file.path)
-        	file.contents = concatDeps(options[file.path], file.path)
-        	buildLog(file.path, options[file.path])
-        	callback(null, file)
+            analyseDeps(file.contents.toString(), options, file.path)
+            file.contents = concatDeps(options[file.path], file.path)
+            buildLog(file.path, options[file.path])
+            callback(null, file)
         }
         else{
             callback(null, file)
@@ -143,3 +143,4 @@ function combo(options){
 }
 
 module.exports = combo
+
