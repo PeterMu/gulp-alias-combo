@@ -9,6 +9,7 @@ var gutil = require('gulp-util')
 var fs = require('fs')
 var PLUGIN_NAME = 'gulp-alias-combo'
 var requireReg = /require\s*\(\s*(["'])(.+?)\1\s*\)/g
+var requirejsReg = /require(js)?\s*\(\s*\[(.+?)\]/g
 var commentReg = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg
 
 /*
@@ -20,20 +21,45 @@ var commentReg = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg
  */
 function analyseDeps(content, options, filePath){
     content = content.replace(commentReg, '')
-    var requires = content.match(requireReg)
-    if(requires){
+    var deps = getDeps(content)
+    if(deps.length > 0){
         options[filePath] = options[filePath] || {}
-        requires.forEach(function(dep){
-            var moduleId = dep.substring(dep.indexOf('(') + 1, dep.indexOf(')')).trim()
-            moduleId = moduleId.substring(1, moduleId.length-1)
-            if(moduleId){
-                if(options.alias && options.alias[moduleId]){
-                    options[filePath][moduleId] = mergePath(moduleId, options)
-                    analyseDeps(readModule(moduleId, options), options, filePath)
+        deps.forEach(function(dep){
+            if(dep){
+                if(options.alias && options.alias[dep]){
+                    options[filePath][dep] = mergePath(dep, options)
+                    analyseDeps(readModule(dep, options), options, filePath)
                 }
             }
         })
     }
+}
+
+/*
+ * 使用正则提取依赖
+ * param { String } content 内容
+ * return { Array }  提取的依赖
+ */
+function getDeps(content){
+    var deps = [], moduleId, moduleIds
+    var requires = content.match(requireReg)
+    if(requires){
+        requires.forEach(function(dep){
+            moduleId = dep.substring(dep.indexOf('(') + 1, dep.lastIndexOf(')')).trim()
+            moduleId = moduleId.substring(1, moduleId.length-1)
+            deps.push(moduleId)
+        })
+    }
+    requires = content.match(requirejsReg)
+    if(requires){
+        requires.forEach(function(dep){
+            moduleIds = eval(dep.substring(dep.indexOf('['), dep.lastIndexOf(']') + 1))
+            if(moduleIds && moduleIds.length > 0){
+                deps = deps.concat(moduleIds)
+            }
+        })
+    }
+    return deps 
 }
 
 /*
