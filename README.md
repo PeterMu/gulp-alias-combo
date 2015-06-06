@@ -49,8 +49,10 @@ defind(function(require, exports, module){
   //code
 })
 ```
-3. 举例
-#### 第一种, 适用 Seajs 的入口文件
+####举例
+
+##### 第一种, 适用 Seajs 的入口文件
+
 要合并的入口文件：
 
 ```
@@ -76,7 +78,7 @@ define('test/b', function(require, exports){
 })
 ```
 
-#### 第二种, 适用 requirejs 的入口文件
+##### 第二种, 适用 requirejs 的入口文件
 
 要合并的入口文件：
 
