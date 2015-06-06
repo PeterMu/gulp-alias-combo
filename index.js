@@ -108,11 +108,11 @@ function tranform(moduleId, filePath){
  * return { Buffer } 合并后的Buffer
  */
 function concatDeps(deps, filePath){
-    var contents = fs.readFileSync(filePath)
+    var buffers = [fs.readFileSync(filePath)]
     for(var key in deps){
-        contents = contents + '\n' + tranform(key, deps[key])
+        buffers.push(new Buffer('\n'), tranform(key, deps[key]))
     }
-    return new Buffer(contents)
+    return Buffer.concat(buffers)
 }
 
 /*
