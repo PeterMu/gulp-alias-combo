@@ -37,12 +37,67 @@ gulp.task('combo', function(){
 ```
 提示：
 
-1. baseUrl和alias都是必须配置项，baseUrl和alias配置的路径合并后就是模块的绝对路径。
-2. 如果在alias中没有配置的别名，在合并时会忽略，不会进行合并操作。
-3. 要合并的模块不要指定模块ID，合并的时候会根据alias配置设置模块的ID，模块要使用CommonJS标准写法。即：
+1. baseUrl和alias都是必须配置项。
+2. baseUrl和alias配置的路径合并后就是模块的绝对路径。
+
+### 合并规则
+
+1. 如果在alias中没有配置的别名，在合并时会忽略，不会进行合并操作。
+2. 要合并的模块不要指定模块ID，合并的时候会根据alias配置设置模块的ID，模块要使用CommonJS标准写法。即：
 ```
 defind(function(require, exports, module){
   //code
+})
+```
+3. 举例
+#### 第一种, 适用 Seajs 的入口文件
+要合并的入口文件：
+
+```
+define(function(require){
+    var a = require('test/a')
+    var b = require('test/b')
+})
+```
+合并后：
+
+```
+define(function(require){
+    var a = require('test/a')
+    var b = require('test/b')
+})
+
+define('test/a', function(require, exports){
+    //code
+})
+
+define('test/b', function(require, exports){
+    //code
+})
+```
+
+#### 第二种, 适用 requirejs 的入口文件
+
+要合并的入口文件：
+
+```
+require(['test/a', 'test/b'], function(a, b){
+    //code
+})
+```
+合并后：
+
+```
+require(['test/a', 'test/b'], function(a, b){
+    //code
+})
+
+define('test/a', function(require, exports){
+    //code
+})
+
+define('test/b', function(require, exports){
+    //code
 })
 ```
 
@@ -53,9 +108,9 @@ gulp combo
 运行完成后，会打印合并日志：
 ```
 [16:44:18] build /work/build/src/apps/app.js:
-  monitor/backbone:[/work/build/src/libs/backbone/1.1.2/backbone.js]
-  monitor/underscore:[/work/build/src/libs/underscore/1.8.3/underscore.js]
-  monitor/views/project:[/work/build/src/views/project.js]
+  backbone:[/work/build/src/libs/backbone/1.1.2/backbone.js]
+  underscore:[/work/build/src/libs/underscore/1.8.3/underscore.js]
+  views/project:[/work/build/src/views/project.js]
 ```
 
 
