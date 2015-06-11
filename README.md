@@ -115,6 +115,11 @@ gulp combo
   views/project:[/work/build/src/views/project.js]
 ```
 
+## Release Notes
+
+### v0.2.2
+
+构建Seajs入口文件时，如果alias配置中有入口文件的配置，会给入口模块添加ID，如果没有配置，则不添加ID
 
 ## License
 

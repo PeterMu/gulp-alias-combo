@@ -7,6 +7,7 @@
 var through = require('through2')
 var gutil = require('gulp-util')
 var fs = require('fs')
+var path = require('path')
 var PLUGIN_NAME = 'gulp-alias-combo'
 var requireReg = /require\s*\(\s*(["'])(.+?)\1\s*\)/g
 var requirejsReg = /require(js)?\s*\(\s*\[(.+?)\]/g
@@ -90,6 +91,22 @@ function mergePath(moduleId, options){
 }
 
 /*
+ * 根据模块路径获取模块的ID
+ * param { String } filePath 文件路径
+ * param { Object } options 配置参数
+ * return { String } 模块ID
+ */
+function getModuleId(filePath, options){
+    var moduleId = ''
+    for(var key in options.alias){
+        if(path.normalize(mergePath(key, options)) == path.normalize(filePath)){
+            moduleId = key
+        }
+    }
+    return moduleId
+}
+
+/*
  * 获取模块ID对应的文件地址
  * param { String } moduleId 模块ID
  * param { String } filePath 配置参数
@@ -107,8 +124,13 @@ function tranform(moduleId, filePath){
  * param { String } filePath 配置参数
  * return { Buffer } 合并后的Buffer
  */
-function concatDeps(deps, filePath){
-    var buffers = [fs.readFileSync(filePath)]
+function concatDeps(deps, filePath, moduleId){
+    var buffers = []
+    if(moduleId){
+        buffers.push(tranform(moduleId, filePath))
+    }else{
+        buffers.push(fs.readFileSync(filePath))
+    }
     for(var key in deps){
         buffers.push(new Buffer('\n'), tranform(key, deps[key]))
     }
@@ -157,8 +179,9 @@ function combo(options){
             return callback()
         }
         if(file.isBuffer()){
+            var moduleId = getModuleId(file.path, options)
             analyseDeps(file.contents.toString(), options, file.path)
-            file.contents = concatDeps(options[file.path], file.path)
+            file.contents = concatDeps(options[file.path], file.path, moduleId)
             buildLog(file.path, options[file.path])
             callback(null, file)
         }
