@@ -121,18 +121,19 @@ function tranform(moduleId, filePath){
 /*
  * 合并依赖的模块到入口文件中
  * param { Object } deps 依赖的模块
- * param { String } filePath 配置参数
+ * param { String } filePath 入口文件路径
+ * param { String } moduleId 入口文件对应的模块ID
  * return { Buffer } 合并后的Buffer
  */
 function concatDeps(deps, filePath, moduleId){
     var buffers = []
+    for(var key in deps){
+        buffers.push(new Buffer('\n'), tranform(key, deps[key]))
+    }
     if(moduleId){
         buffers.push(tranform(moduleId, filePath))
     }else{
         buffers.push(fs.readFileSync(filePath))
-    }
-    for(var key in deps){
-        buffers.push(new Buffer('\n'), tranform(key, deps[key]))
     }
     return Buffer.concat(buffers)
 }
