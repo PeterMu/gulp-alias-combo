@@ -7,7 +7,7 @@ gulp.task('default', function(){
         baseUrl: __dirname + '/src/',
         alias: {
             'test/a': 'views/a.js',
-            'test/b': 'views/b.js',
+            'test/b': 'views/b',
             'app': 'apps/app.js'
         }
     }))

@@ -12,6 +12,7 @@ var PLUGIN_NAME = 'gulp-alias-combo'
 var requireReg = /require\s*\(\s*(["'])(.+?)\1\s*\)/g
 var requirejsReg = /require(js)?\s*\(\s*\[(.+?)\]/g
 var commentReg = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg
+var jsFileReg = /^.+\.js$/
 
 /*
  * 提取模块中的依赖
@@ -128,7 +129,7 @@ function tranform(moduleId, filePath){
 function concatDeps(deps, filePath, moduleId){
     var buffers = []
     for(var key in deps){
-        buffers.push(new Buffer('\n'), tranform(key, deps[key]))
+        buffers.push(tranform(key, deps[key]), new Buffer('\n'))
     }
     if(moduleId){
         buffers.push(tranform(moduleId, filePath))
@@ -150,6 +151,17 @@ function inArray(array, e){
 }
 
 /*
+ * 文件类型处理，如果没有js后缀，会自动添加 .js
+ */
+function parseFileType(alias){
+    for(var key in alias){
+        if(!jsFileReg.test(alias[key])){
+            alias[key] += '.js'
+        }
+    }
+}
+
+/*
  * 打印构建日志
  * param { filePath } filePath 构建的文件
  * param { Object } e 依赖的模块
@@ -166,19 +178,17 @@ function buildLog(filePath, deps){
  * param { Object } options 配置参数，必须参数
  */
 function combo(options){
+    if(!options){
+        gutil.log(gutil.colors.red(PLUGIN_NAME, 'The options param is required'))
+    }
+    if(!options.alias){
+        gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option alias is required'))
+    }
+    if(!options.baseUrl){
+        gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option baseUrl is required'))
+    }
+    parseFileType(options.alias)
     return through.obj(function(file, enc, callback){
-        if(!options){
-            gutil.log(gutil.colors.red(PLUGIN_NAME, 'The options param is required'))
-            return callback()
-        }
-        if(!options.alias){
-            gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option alias is required'))
-            return callback()
-        }
-        if(!options.baseUrl){
-            gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option baseUrl is required'))
-            return callback()
-        }
         if(file.isBuffer()){
             var moduleId = getModuleId(file.path, options)
             analyseDeps(file.contents.toString(), options, file.path)
