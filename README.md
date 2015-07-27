@@ -254,7 +254,7 @@ gulp combo
 
 ### v0.2.4
 
-alias 配置可以不加 .js 文件类型，构建时会自动添加
+alias 配置可以不加.js 文件类型，构建时会自动添加
 
 ## License
 
