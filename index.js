@@ -91,6 +91,8 @@ function getDeps(content){
  * 生成相对baseUrl的模块ID
  */
 function parseDep(filePath, baseUrl){
+    filePath = filePath.replace('/\\/g', '/')
+    baseUrl = baseUrl.replace('/\\/g', '/')
     var dep = filePath.replace(baseUrl, '')
     return dep.substring(0, dep.length - 3)
 }
@@ -147,7 +149,7 @@ function getRelativePath(filePath, dep, options){
     }else{
         if(options.paths){
             for(var key in options.paths){
-                if(dep.indexOf(key) != -1){
+                if(dep.indexOf(key) === 0){
                     dep = dep.replace(key, options.paths[key])
                 }
             }
@@ -171,7 +173,12 @@ function getModuleId(filePath, options){
     for(var key in options.alias){
         if(path.normalize(mergePath(key, options)) == path.normalize(filePath)){
             moduleId = key
+            break
         }
+    }
+    //如果在alias中未找到文件路径对应的别名，那么取相对于baseUrl的路径作为ID
+    if(moduleId == ''){
+        moduleId = parseDep(filePath, options.baseUrl)
     }
     return moduleId
 }
