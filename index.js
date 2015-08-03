@@ -25,7 +25,7 @@ var jsFileReg = /^.+\.js$/
 function analyseDeps(content, filePath, options, startFile){
     var relativePath = '', parsedDep = null
     content = content.replace(commentReg, '')
-    var deps = getDeps(content)
+    var deps = getDeps(content, options.exclude)
     if(deps.length > 0){
         options[startFile] = options[startFile] || {}
         deps.forEach(function(dep){
@@ -65,7 +65,7 @@ function analyseDeps(content, filePath, options, startFile){
  * param { String } content 内容
  * return { Array }  提取的依赖
  */
-function getDeps(content){
+function getDeps(content, exclude){
     var deps = [], moduleId, moduleIds
     var requires = content.match(requireReg)
     if(requires){
@@ -83,6 +83,13 @@ function getDeps(content){
                 deps = deps.concat(moduleIds)
             }
         })
+    }
+    if(exclude && (exclude instanceof Array)){
+        for(var i=0,l=deps.length; i<l; i++){
+            if(deps[i] && inArray(exclude, deps[i])){
+                deps.splice(i, 1)
+            }
+        }
     }
     return deps 
 }

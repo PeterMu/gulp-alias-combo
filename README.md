@@ -4,13 +4,53 @@
 
 ## 重要更新
 
-将入口文件合并到构建后的文件底部，解决requirejs下的加载bug
+添加对相对路径的支持，比如下面几种情况:
+
+```
+1. require('./test')
+2. require('../test')
+3. require('test')
+```
 
 ## Install
 
 ```
 npm install gulp-alias-combo --save-dev
 ```
+
+## 配置参数
+
+#### baseUrl
+
+必须参数，要构建项目的根路径
+
+#### alias { Object }
+
+必须参数，别名配置，key 为模块的别名（模块ID），value 为模块的路径，baseUrl+此处配置的路径就是模块的绝对路径, 如果需要给入口模块自定义ID，需要在alias中进行配置，key为入口模块ID，value为入口模块的路径，默认的入口模块ID是入口模块相对于baseUrl的路径
+
+#### supportRelative { Boolean }
+
+可选参数，默认是false，为true时开启对相对路径的支持
+
+#### paths { Object  }
+
+可选参数，路径的简写，只有supportRelative为true时，才会起作用，例如：
+
+```
+var test = require('views/test')
+
+//如果配置了paths
+paths: {
+    'views': 'apps/modules/'
+}
+
+//解析后变为
+var test = require('apps/modules/test')
+```
+
+#### exclude { Array }
+
+可选参数, 要忽略的模块ID，合并时在exclude配置的模块ID会直接忽略
 
 ## Usage
 
@@ -132,6 +172,10 @@ gulp combo
 ### v0.2.4
 
 alias 配置可以不加.js 文件类型，构建时会自动添加
+
+### v0.2.5
+
+添加对相对路径的支持
 
 ## License
 
