@@ -66,7 +66,7 @@ function analyseDeps(content, filePath, options, startFile){
  * return { Array }  提取的依赖
  */
 function getDeps(content, exclude){
-    var deps = [], moduleId, moduleIds
+    var deps = [], moduleId, moduleIds, result = []
     var requires = content.match(requireReg)
     if(requires){
         requires.forEach(function(dep){
@@ -86,8 +86,8 @@ function getDeps(content, exclude){
     }
     if(exclude && (exclude instanceof Array)){
         for(var i=0,l=deps.length; i<l; i++){
-            if(deps[i] && inArray(exclude, deps[i])){
-                deps.splice(i, 1)
+            if(deps[i] && !inArray(exclude, deps[i])){
+                result.push(deps[i])
             }
         }
     }
