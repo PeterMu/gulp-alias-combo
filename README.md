@@ -30,7 +30,7 @@ npm install gulp-alias-combo --save-dev
 
 #### alias { Object }
 
-别名配置，当supportRelative为false时为必须参数，supportRelative为true是为可选参数，key 为模块的别名（模块ID），value 为模块的路径，baseUrl+此处配置的路径就是模块的绝对路径, 如果需要给入口模块自定义ID，需要在alias中进行配置，key为入口模块ID，value为入口模块的路径，默认的入口模块ID是入口模块相对于baseUrl的路径
+别名配置，当supportRelative为false时为必须参数，supportRelative为true是为可选参数，alias配置对象的key 为模块的别名（模块ID），value 为模块的路径，baseUrl+此处配置的路径就是模块的绝对路径, 如果需要给入口模块自定义ID，需要在alias中进行配置，key为入口模块ID，value为入口模块的路径，默认的入口模块ID是入口模块相对于baseUrl的路径
 
 
 #### paths { Object  }
