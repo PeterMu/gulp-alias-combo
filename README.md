@@ -18,6 +18,12 @@
 npm install gulp-alias-combo --save-dev
 ```
 
+安装组建依赖
+
+```
+npm install
+```
+
 ## 配置参数
 
 #### baseUrl
