@@ -91,7 +91,7 @@ function getDeps(content, exclude){
             }
         }
     }
-    return deps 
+    return result
 }
 
 /*
