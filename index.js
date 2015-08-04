@@ -98,8 +98,8 @@ function getDeps(content, exclude){
  * 生成相对baseUrl的模块ID
  */
 function parseDep(filePath, baseUrl){
-    filePath = filePath.replace('/\\/g', '/')
-    baseUrl = baseUrl.replace('/\\/g', '/')
+    filePath = filePath.replace(/\\/g, '/')
+    baseUrl = baseUrl.replace(/\\/g, '/')
     var dep = filePath.replace(baseUrl, '')
     return dep.substring(0, dep.length - 3)
 }
@@ -282,16 +282,21 @@ function buildLog(filePath, deps){
  * param { Object } options 配置参数，必须参数
  */
 function combo(options){
+    options.supportRelative = options.supportRelative || false
     if(!options){
         gutil.log(gutil.colors.red(PLUGIN_NAME, 'The options param is required'))
     }
-    if(!options.alias){
-        gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option alias is required'))
+    if(!options.supportRelative && !options.alias){
+        gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option alias is required when supportRelative is false'))
     }
     if(!options.baseUrl){
         gutil.log(gutil.colors.red(PLUGIN_NAME, 'The option baseUrl is required'))
     }
-    parseFileType(options.alias)
+    if(options.alias){
+        parseFileType(options.alias)
+    }else{
+        options.alias = {}
+    }
     return through.obj(function(file, enc, callback){
         if(file.isBuffer()){
             var moduleId = getModuleId(file.path, options)
