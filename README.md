@@ -184,6 +184,10 @@ alias 配置可以不加.js 文件类型，构建时会自动添加
 
 添加对相对路径的支持
 
+### v0.2.6
+
+修复alias配置无效的bug，这个bug实在是不应该，已自己掌脸！
+
 ## License
 
 MIT @ [Peter Mu](https://github.com/PeterMu)

@@ -90,6 +90,8 @@ function getDeps(content, exclude){
                 result.push(deps[i])
             }
         }
+    }else{
+        result = deps
     }
     return result
 }
