@@ -13,44 +13,43 @@ var requireReg = /require\s*\(\s*(["'])(.+?)\1\s*\)/g
 var requirejsReg = /require(js)?\s*\(\s*\[(.+?)\]/g
 var commentReg = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg
 var jsFileReg = /^.+\.js$/
+var DepStore = require('./libs/dep_store')
 
 /*
  * 提取模块中的依赖
  * param { String } content 文件内容
  * param { Object } options 配置参数
  * param { String } filePath 文件路径
- * param { String } startfile 入口文件路径
+ * param { Object } depStore 依赖存储对象 
  * return  提取的依赖存到options里 
  */
-function analyseDeps(content, filePath, options, startFile){
-    var relativePath = '', parsedDep = null
+function analyseDeps(content, filePath, options, depStore){
+    var relativePath = '', parsedDep = null, deps = null
     content = content.replace(commentReg, '')
-    var deps = getDeps(content, options.exclude)
+    deps = getDeps(content, options.exclude)
     if(deps.length > 0){
-        options[startFile] = options[startFile] || {}
         deps.forEach(function(dep){
             if(dep){
                 if(options.alias && options.alias[dep]){
-                    pushDep(options, startFile, dep, mergePath(dep, options))
+                    depStore.addAlias(dep, mergePath(dep, options))
                     analyseDeps(
-                        readModule(dep, options[startFile][dep]),
-                        options[startFile][dep],
+                        readModule(dep, depStore.getAlias(dep)),
+                        depStore.getAlias(dep),
                         options,
-                        startFile
+                        depStore
                     )
                 }else{
-                    if(options.supportRelative && !options[startFile][dep]){
-                        options[filePath + '-r'] = options[filePath + '-r'] || {}
+                    if(options.supportRelative && !depStore.hasAlias(dep)){
                         relativePath = getRelativePath(filePath, dep, options)
                         parsedDep = parseDep(relativePath, options.baseUrl)
-                        pushDep(options, startFile, parsedDep, relativePath)
-                        if(!options[filePath + '-r'][dep]){
-                            options[filePath + '-r'][dep] = parsedDep 
+                        depStore.addAlias(parsedDep, relativePath)
+                        if(!depStore.hasRelative(dep)){
+                            depStore.addRelative(dep, parseDep)
                             analyseDeps(
                                 readModule(parsedDep, relativePath),
                                 relativePath,
                                 options,
-                                startFile
+                                depStore
                             )
                         }
                     }
@@ -104,17 +103,6 @@ function parseDep(filePath, baseUrl){
     baseUrl = baseUrl.replace(/\\/g, '/')
     var dep = filePath.replace(baseUrl, '')
     return dep.substring(0, dep.length - 3)
-}
-
-/*
- * 添加依赖
- */
-function pushDep(options, startFile, dep ,filePath){
-    if(fs.existsSync(filePath)){
-        options[startFile][dep] = filePath
-    }else{
-        options[startFile][dep] = null
-    }
 }
 
 /*
@@ -196,20 +184,20 @@ function getModuleId(filePath, options){
  * 给模块添加ID和转换模块ID为相对baseUrl的ID 
  * param { String } moduleId 模块ID
  * param { String } filePath 模块文件路径 
- * param { String } deps 文件的所有依赖 
+ * param { Object } relativeDep 文件的所有依赖 
  * return { Buffer } 文件
  */
-function tranform(moduleId, filePath, options){
-    var content = '', parsedDeps = options[filePath + '-r']
+function tranform(moduleId, filePath, relativeDep){
+    var content = ''
     if(filePath && fs.existsSync(filePath)){
         content = fs.readFileSync(filePath).toString()
         content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
-        if(parsedDeps){
-            for(var key in parsedDeps){
-                if(key != parsedDeps[key]){
+        if(relativeDep){
+            for(var key in relativeDep){
+                if(key != relativeDep[key]){
                     content = content.replace(
                         new RegExp('require\\s*\\(\\s*[\'"]{1}'+key+'[\'"]{1}\\s*\\)', 'g'),
-                        'require("' + parsedDeps[key] + '")'
+                        'require("' + relativeDep[key] + '")'
                     )
                 }
             }
@@ -220,21 +208,22 @@ function tranform(moduleId, filePath, options){
 
 /*
  * 合并依赖的模块到入口文件中
- * param { Object } options 配置参数 
+ * param { Object } depStore 依赖存储对象 
  * param { String } filePath 入口文件路径
  * param { String } moduleId 入口文件对应的模块ID
  * return { Buffer } 合并后的Buffer
  */
-function concatDeps(options, filePath, moduleId){
-    var buffers = []
-    for(var key in options[filePath]){
+function concatDeps(depStore, filePath, moduleId){
+    var buffers = [], deps = null
+    deps = depStore.getAlias()
+    for(var key in deps){
         buffers.push(
-            tranform(key, options[filePath][key], options), 
+            tranform(key, deps[key], depStore.getRelative()), 
             new Buffer('\n')
         )    
     }
     if(moduleId){
-        buffers.push(tranform(moduleId, filePath, options))
+        buffers.push(tranform(moduleId, filePath, depStore.getRelative()))
     }else{
         buffers.push(fs.readFileSync(filePath))
     }
@@ -302,10 +291,12 @@ function combo(options){
     return through.obj(function(file, enc, callback){
         if(file.isBuffer()){
             var moduleId = getModuleId(file.path, options)
-            analyseDeps(file.contents.toString(), file.path, options, file.path)
-            file.contents = concatDeps(options, file.path, moduleId)
-            buildLog(file.path, options[file.path])
+            var depStore = new DepStore()
+            analyseDeps(file.contents.toString(), file.path, options, depStore)
+            file.contents = concatDeps(depStore, file.path, moduleId)
+            buildLog(file.path, depStore.getAlias())
             callback(null, file)
+            depStore.destroy()
         }
         else{
             callback(null, file)
