@@ -4,7 +4,7 @@
 function DepStore(){
     this._alias = {} 
     this._relative = {}
-    this._error = {}
+    this._error = null
 }
 
 /**
@@ -60,16 +60,23 @@ DepStore.prototype.hasRelative = function(dep){
 /**
  * 添加依赖错误信息 
  */
-DepStore.prototype.addError = function(path, msg){
-    this._error[path] = msg 
+DepStore.prototype.addError = function(dep, path){
+    var originDep = dep
+    this._error = this._error || {}
+    for(var key in this._relative){
+        if(dep == this.getRelative(key)){
+            originDep = key
+        }
+    }
+    this._error[originDep] = path
 }
 
 /**
- * 根据模块id获取相对路径依赖的文件路径
+ * 获取错误信息
  */
-DepStore.prototype.getError= function(path){
-    if(path){
-        return this._error[path] || ''
+DepStore.prototype.getError = function(dep){
+    if(dep){
+        return this._error[dep] || ''
     }else{
         return this._error
     }

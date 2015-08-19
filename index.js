@@ -217,10 +217,14 @@ function concatDeps(depStore, filePath, moduleId){
     var buffers = [], deps = null
     deps = depStore.getAlias()
     for(var key in deps){
-        buffers.push(
-            tranform(key, deps[key], depStore.getRelative()), 
-            new Buffer('\n')
-        )    
+        if(fs.existsSync(deps[key])){
+            buffers.push(
+                tranform(key, deps[key], depStore.getRelative()), 
+                new Buffer('\n')
+            )    
+        }else{
+            depStore.addError(key, deps[key])
+        }
     }
     if(moduleId){
         buffers.push(tranform(moduleId, filePath, depStore.getRelative()))
@@ -255,15 +259,22 @@ function parseFileType(alias){
 /*
  * 打印构建日志
  * param { filePath } filePath 构建的文件
- * param { Object } e 依赖的模块
+ * param { Object } depStore 依赖的模块
  */
-function buildLog(filePath, deps){
+function buildLog(filePath, depStore){
+    var deps = depStore.getAlias()
+    var error = depStore.getError()
     gutil.log(gutil.colors.green('build ' + filePath + ':'))
     for(var key in deps){
         if(deps[key]){
             console.log('  ' + key + ': [' + deps[key] + ']')
         }else{
             console.log(gutil.colors.red('  ' + key + ': [Not Found]'))
+        }
+    }
+    if(error){
+        for(var key in error){
+            console.log(gutil.colors.red('  ' + key + ': [' + error[key] + '] Not Found'))
         }
     }
 }
@@ -294,7 +305,7 @@ function combo(options){
             var depStore = new DepStore()
             analyseDeps(file.contents.toString(), file.path, options, depStore)
             file.contents = concatDeps(depStore, file.path, moduleId)
-            buildLog(file.path, depStore.getAlias())
+            buildLog(file.path, depStore)
             callback(null, file)
             depStore.destroy()
         }

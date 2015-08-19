@@ -1,4 +1,3 @@
-
 define("test/b", function(require){
     var c = require("views/c")
 	console.log('I am B')
