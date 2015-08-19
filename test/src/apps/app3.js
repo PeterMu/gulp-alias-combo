@@ -1,3 +1,3 @@
-requirejs( ['test/a', 'test/b' ] , function(a, b){
-    console.log('I am app2')
+requirejs( ['./views/a', 'test/b' ] , function(a, b){
+    console.log('I am app3')
 })

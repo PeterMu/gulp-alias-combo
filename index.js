@@ -44,7 +44,7 @@ function analyseDeps(content, filePath, options, depStore){
                         parsedDep = parseDep(relativePath, options.baseUrl)
                         depStore.addAlias(parsedDep, relativePath)
                         if(!depStore.hasRelative(dep)){
-                            depStore.addRelative(dep, parseDep)
+                            depStore.addRelative(dep, parsedDep)
                             analyseDeps(
                                 readModule(parsedDep, relativePath),
                                 relativePath,

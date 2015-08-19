@@ -4,6 +4,7 @@
 function DepStore(){
     this._alias = {} 
     this._relative = {}
+    this._error = {}
 }
 
 /**
@@ -35,7 +36,7 @@ DepStore.prototype.hasAlias = function(dep){
  * 添加相对路径的依赖
  */
 DepStore.prototype.addRelative = function(dep, path){
-    this._relative[dep] = this._alias[dep] || path
+    this._relative[dep] = this._relative[dep] || path
 }
 
 /**
@@ -57,11 +58,30 @@ DepStore.prototype.hasRelative = function(dep){
 }
 
 /**
+ * 添加依赖错误信息 
+ */
+DepStore.prototype.addError = function(path, msg){
+    this._error[path] = msg 
+}
+
+/**
+ * 根据模块id获取相对路径依赖的文件路径
+ */
+DepStore.prototype.getError= function(path){
+    if(path){
+        return this._error[path] || ''
+    }else{
+        return this._error
+    }
+}
+
+/**
  * 销毁对象
  */
 DepStore.prototype.destroy = function(){
     delete this._alias
     delete this._relative
+    delete this._error
 }
 
 module.exports = DepStore

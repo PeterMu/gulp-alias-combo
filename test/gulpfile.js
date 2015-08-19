@@ -2,7 +2,7 @@ var gulp = require('gulp')
 var aliasCombo = require('../index')
     
 gulp.task('default', function(){
-    return gulp.src('src/apps/app.js')
+    return gulp.src('src/apps/*.js')
     .pipe(aliasCombo({
         baseUrl: __dirname + '/src/',
         /**

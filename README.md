@@ -1,6 +1,6 @@
 # gulp-alias-combo
 
-> 一个根据alias配置合并js文件的gulp插件，合并时会自动提取模块间的依赖
+> 一个根据配置合并js文件的gulp插件，合并时会自动提取模块间的依赖
 
 ## 重要更新
 
@@ -18,7 +18,7 @@
 npm install gulp-alias-combo --save-dev
 ```
 
-安装组建依赖
+安装依赖
 
 ```
 npm install
@@ -28,7 +28,7 @@ npm install
 
 #### baseUrl
 
-必须参数，要构建项目的根路径
+必须参数，要构建项目的根路径，以斜杠结束
 
 #### supportRelative { Boolean }
 
@@ -36,7 +36,7 @@ npm install
 
 #### alias { Object }
 
-别名配置，当supportRelative为false时为必须参数，supportRelative为true是为可选参数，alias配置对象的key 为模块的别名（模块ID），value 为模块的路径，baseUrl+此处配置的路径就是模块的绝对路径, 如果需要给入口模块自定义ID，需要在alias中进行配置，key为入口模块ID，value为入口模块的路径，默认的入口模块ID是入口模块相对于baseUrl的路径
+别名配置，当supportRelative为false时为必须参数，supportRelative为true是为可选参数，alias配置对象的key 为模块的别名（模块ID），value 为模块的路径，baseUrl+此处配置的路径就是模块的绝对路径, 如果需要给入口模块自定义ID，需要在alias中进行配置，key为入口模块ID，value为入口模块的路径，默认的入口模块ID是入口模块相对于baseUrl的相对路径
 
 
 #### paths { Object  }
@@ -63,8 +63,8 @@ var test = require('apps/modules/test')
 
 ### 使用场景
 
-gulp-alias-combo插件主要目的是合并seajs/requirejs中配置的别名模块，会把所
-有配置的别名模块合并到入口js文件中。合并过程中会自动提取依赖模块，不会出现
+gulp-alias-combo插件主要目的是合并seajs/requirejs中依赖的模块，会把所
+有依赖的模块合并到入口js文件中。合并过程中会自动提取依赖模块，不会出现
 重复合并。
 
 ### 使用样例
@@ -77,6 +77,8 @@ gulp.task('combo', function(){
     return gulp.src('src/apps/*.js')
         .pipe(aliasCombo({
             baseUrl: __dirname + '/src/',
+            //supportRelative 默认为 false, 如果要支持相对路径模块的合并，设置为true
+            supportRelative: true,
             alias: {
                 'test/a': 'views/a.js',
                 //会自动添加.js后缀
@@ -87,15 +89,13 @@ gulp.task('combo', function(){
         .pipe(gulp.dest('dest/apps'));
 })
 ```
-提示：
-
-1. baseUrl和alias都是必须配置项。
-2. baseUrl和alias配置的路径合并后就是模块的绝对路径。
 
 ### 合并规则
 
-1. 如果在alias中没有配置的别名，在合并时会忽略，不会进行合并操作。
-2. 要合并的模块不要指定模块ID，合并的时候会根据alias配置设置模块的ID，模块要使用CommonJS标准写法。即：
+1. supportRelative 为 false 时，如果在alias中没有配置的别名，在合并时会忽略，不会进行合并操作。
+2. supportRelative 为 true 时，会合并所有依赖，如果要排除特定的某些模块，在 exclude 中配置。
+3. 合并相对路径的模块时，模块的ID为模块路径相对于baseUrl的相对路径。
+4. 要合并的模块不要指定模块ID，合并的时候会根据alias配置设置模块的ID，模块要使用CommonJS标准写法。即：
 ```
 defind(function(require, exports, module){
   //code
@@ -187,6 +187,10 @@ alias 配置可以不加.js 文件类型，构建时会自动添加
 ### v0.2.6
 
 修复alias配置无效的bug，这个bug实在是不应该，已自己掌脸！
+
+### v0.2.7
+
+修复遗漏遍历某些文件依赖的bug
 
 ## License
 
