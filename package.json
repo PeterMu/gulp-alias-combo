@@ -1,7 +1,7 @@
 {
   "name": "gulp-alias-combo",
   "version": "0.2.7",
-  "description": "一个根据alias配置合并js文件的gulp插件，合并时会自动提取模块间的依赖",
+  "description": "一个根据配置合并js文件的gulp插件，合并时会自动提取模块间的依赖",
   "main": "index.js",
   "repository": {
     "type": "git",
