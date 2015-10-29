@@ -1,9 +1,3 @@
-define("views/a", function(require){
-	var b = require('test/b')
-    var c = require("views/c")
-	console.log('I am A')
-})
-
 define("test/b", function(require){
     var c = require("views/c")
 	console.log('I am B')
@@ -18,6 +12,9 @@ define("views/d", function(require){
     console.log('I am D')
 })
 
-requirejs( ['../views/a', 'test/b' ] , function(a, b){
-    console.log('I am app3')
+define(function(require){
+	var a = require('test/a')
+	var b = require('test/b')
+    var c = require ( 'module/c' )
+    require('jquery')
 })
