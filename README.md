@@ -72,7 +72,7 @@ gulp-alias-combo插件主要目的是合并seajs/requirejs中依赖的模块，�
 ```
 var gulp = require('gulp')
 var aliasCombo = require('gulp-alias-combo')
-    
+
 gulp.task('combo', function(){
     return gulp.src('src/apps/*.js')
         .pipe(aliasCombo({
@@ -192,7 +192,10 @@ alias 配置可以不加.js 文件类型，构建时会自动添加
 
 修复遗漏遍历某些文件依赖的bug
 
+### v0.2.8
+
+修改提取的依赖存储方式；入口文件没有在alias配置别名时，取消自动添加模块ID。
+
 ## License
 
 MIT @ [Peter Mu](https://github.com/PeterMu)
-

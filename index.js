@@ -20,8 +20,8 @@ var DepStore = require('./libs/dep_store')
  * param { String } content 文件内容
  * param { Object } options 配置参数
  * param { String } filePath 文件路径
- * param { Object } depStore 依赖存储对象 
- * return  提取的依赖存到options里 
+ * param { Object } depStore 依赖存储对象
+ * return  提取的依赖存到options里
  */
 function analyseDeps(content, filePath, options, depStore){
     var relativePath = '', parsedDep = null, deps = null
@@ -77,10 +77,12 @@ function getDeps(content, exclude){
     requires = content.match(requirejsReg)
     if(requires){
         requires.forEach(function(dep){
-            moduleIds = eval(dep.substring(dep.indexOf('['), dep.lastIndexOf(']') + 1))
-            if(moduleIds && moduleIds.length > 0){
-                deps = deps.concat(moduleIds)
-            }
+            try {
+                moduleIds = eval(dep.substring(dep.indexOf('['), dep.lastIndexOf(']') + 1))
+                if(moduleIds && moduleIds.length > 0){
+                    deps = deps.concat(moduleIds)
+                }
+            }catch(e){}
         })
     }
     if(exclude && (exclude instanceof Array)){
@@ -108,8 +110,8 @@ function parseDep(filePath, baseUrl){
 /*
  * 读取依赖的文件内容
  * param { String } moduleId 模块ID
- * param { String } filePath 文件路径 
- * return { String } 模块内容 
+ * param { String } filePath 文件路径
+ * return { String } 模块内容
  */
 function readModule(moduleId, filePath){
     var content = ''
@@ -130,7 +132,7 @@ function readModule(moduleId, filePath){
  * 获取模块ID对应的文件地址
  * param { String } moduleId 模块ID
  * param { Object } options 配置参数
- * return { String } 文件地址 
+ * return { String } 文件地址
  */
 function mergePath(moduleId, options){
     return options.baseUrl + options.alias[moduleId]
@@ -166,25 +168,25 @@ function getRelativePath(filePath, dep, options){
  * return { String } 模块ID
  */
 function getModuleId(filePath, options){
-    var moduleId = ''
+    var moduleId = null
     for(var key in options.alias){
         if(path.normalize(mergePath(key, options)) == path.normalize(filePath)){
             moduleId = key
             break
         }
     }
-    //如果在alias中未找到文件路径对应的别名，那么取相对于baseUrl的路径作为ID
-    if(moduleId == ''){
-        moduleId = parseDep(filePath, options.baseUrl)
-    }
+    // //如果在alias中未找到文件路径对应的别名，那么取相对于baseUrl的路径作为ID
+    // if(moduleId == null){
+    //     moduleId = parseDep(filePath, options.baseUrl)
+    // }
     return moduleId
 }
 
 /*
- * 给模块添加ID和转换模块ID为相对baseUrl的ID 
+ * 给模块添加ID和转换模块ID为相对baseUrl的ID
  * param { String } moduleId 模块ID
- * param { String } filePath 模块文件路径 
- * param { Object } relativeDep 文件的所有依赖 
+ * param { String } filePath 模块文件路径
+ * param { Object } relativeDep 文件的所有依赖
  * return { Buffer } 文件
  */
 function tranform(moduleId, filePath, relativeDep){
@@ -208,7 +210,7 @@ function tranform(moduleId, filePath, relativeDep){
 
 /*
  * 合并依赖的模块到入口文件中
- * param { Object } depStore 依赖存储对象 
+ * param { Object } depStore 依赖存储对象
  * param { String } filePath 入口文件路径
  * param { String } moduleId 入口文件对应的模块ID
  * return { Buffer } 合并后的Buffer
@@ -219,9 +221,9 @@ function concatDeps(depStore, filePath, moduleId){
     for(var key in deps){
         if(fs.existsSync(deps[key])){
             buffers.push(
-                tranform(key, deps[key], depStore.getRelative()), 
+                tranform(key, deps[key], depStore.getRelative()),
                 new Buffer('\n')
-            )    
+            )
         }else{
             depStore.addError(key, deps[key])
         }
@@ -240,7 +242,7 @@ function concatDeps(depStore, filePath, moduleId){
  * param { String,Int } e 要判断的元素
  * return { Boolean } 是否含有此元素
  */
-function inArray(array, e){ 
+function inArray(array, e){
     for(i=0; i<array.length && array[i]!=e; i++);
     return !(i==array.length)
 }
@@ -316,4 +318,3 @@ function combo(options){
 }
 
 module.exports = combo
-
