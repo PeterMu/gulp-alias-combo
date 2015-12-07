@@ -18,6 +18,12 @@ define("views/d", function(require){
     console.log('I am D')
 })
 
-requirejs( ['../views/a', 'test/b' ] , function(a, b){
-    console.log('I am app3')
+define("views/b", function(require){
+    var c = require("views/c")
+	console.log('I am B')
+})
+
+define(function(require){
+    var a = require("views/a")
+    var b = require("views/b")
 })

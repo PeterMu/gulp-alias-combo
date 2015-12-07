@@ -193,7 +193,9 @@ function tranform(moduleId, filePath, relativeDep){
     var content = ''
     if(filePath && fs.existsSync(filePath)){
         content = fs.readFileSync(filePath).toString()
-        content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
+        if(moduleId){
+            content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
+        }
         if(relativeDep){
             for(var key in relativeDep){
                 if(key != relativeDep[key]){
@@ -228,11 +230,7 @@ function concatDeps(depStore, filePath, moduleId){
             depStore.addError(key, deps[key])
         }
     }
-    if(moduleId){
-        buffers.push(tranform(moduleId, filePath, depStore.getRelative()))
-    }else{
-        buffers.push(fs.readFileSync(filePath))
-    }
+    buffers.push(tranform(moduleId, filePath, depStore.getRelative()))
     return Buffer.concat(buffers)
 }
 

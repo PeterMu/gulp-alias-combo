@@ -196,6 +196,10 @@ alias 配置可以不加.js 文件类型，构建时会自动添加
 
 修改提取的依赖存储方式；入口文件没有在alias配置别名时，取消自动添加模块ID。
 
+### v0.2.9
+
+修复在入口文件有require相对路径的时候，没有替换入口文件里require的模块ID的bug。
+
 ## License
 
 MIT @ [Peter Mu](https://github.com/PeterMu)

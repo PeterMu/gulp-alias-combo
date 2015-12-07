@@ -1,3 +1,4 @@
-requirejs( ['../views/a', 'test/b' ] , function(a, b){
-    console.log('I am app3')
+define(function(require){
+    var a = require('../views/a')
+    var b = require('../views/b')
 })
