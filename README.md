@@ -1,4 +1,4 @@
-# gulp-alias-combo
+# gulp-alias-combo [![npm](https://img.shields.io/npm/v/gulp-alias-combo.svg)](https://www.npmjs.com/package/gulp-alias-combo)  [![npm](https://img.shields.io/npm/dt/gulp-alias-combo.svg)](https://www.npmjs.com/package/gulp-alias-combo)
 
 > 一个根据配置合并js文件的gulp插件，合并时会自动提取模块间的依赖
 
