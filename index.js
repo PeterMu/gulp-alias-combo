@@ -194,7 +194,7 @@ function tranform(moduleId, filePath, relativeDep){
     if(filePath && fs.existsSync(filePath)){
         content = fs.readFileSync(filePath).toString()
         if(moduleId){
-            content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
+            content = content.replace(/define\s*\(/g, 'define("' + moduleId + '", ')
         }
         if(relativeDep){
             for(var key in relativeDep){
