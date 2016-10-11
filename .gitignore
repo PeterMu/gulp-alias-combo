@@ -1,6 +1,7 @@
 node_modules
 .DS_Store
 .swap
+.swp
 .orig
 .log
 npm-debug.log

@@ -17,4 +17,5 @@ define("app", function(require){
 	var b = require('test/b')
     var c = require("views/c")
     require('jquery')
+    xxx.define('test')
 })
