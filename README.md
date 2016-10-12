@@ -166,16 +166,6 @@ gulp combo
   test/b:[/work/build/src/views/b.js]
 ```
 
-## Release Notes
-
-### v0.3.0
-
-修复自动添加模块ID的问题。
-
-### v0.2.9
-
-修复在入口文件有require相对路径的时候，没有替换入口文件里require的模块ID的bug。
-
 ## License
 
 MIT @ [Peter Mu](https://github.com/PeterMu)
