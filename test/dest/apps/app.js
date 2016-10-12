@@ -12,9 +12,10 @@ define("views/d", function(require){
     console.log('I am D')
 })
 
+
 define("app", function(require){
-	var a = require('test/a')
-	var b = require('test/b')
+    var a = require('test/a')
+    var b = require('test/b')
     var c = require("views/c")
     require('jquery')
     xxx.define('test')

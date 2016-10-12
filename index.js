@@ -193,8 +193,9 @@ function tranform(moduleId, filePath, relativeDep){
     var content = ''
     if(filePath && fs.existsSync(filePath)){
         content = fs.readFileSync(filePath).toString()
+        content = content.replace(commentReg, '')
         if(moduleId){
-            content = content.replace(/^\s*define\s*\(/g, 'define("' + moduleId + '", ')
+            content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
         }
         if(relativeDep){
             for(var key in relativeDep){
