@@ -21,7 +21,7 @@ var DepStore = require('./libs/dep_store')
  * param { Object } options 配置参数
  * param { String } filePath 文件路径
  * param { Object } depStore 依赖存储对象
- * return  提取的依赖存到options里
+ * return  提取的依赖存到 options 里
  */
 function analyseDeps(content, filePath, options, depStore){
     var relativePath = '', parsedDep = null, deps = null
@@ -41,7 +41,7 @@ function analyseDeps(content, filePath, options, depStore){
                 }else{
                     if(options.supportRelative && !depStore.hasAlias(dep)){
                         relativePath = getRelativePath(filePath, dep, options)
-                        parsedDep = parseDep(relativePath, options.baseUrl)
+                        parsedDep = parseDep(relativePath, options.baseUrl, options.moduleIdPrefix)
                         depStore.addAlias(parsedDep, relativePath)
                         if(!depStore.hasRelative(dep)){
                             depStore.addRelative(dep, parsedDep)
@@ -100,11 +100,15 @@ function getDeps(content, exclude){
 /*
  * 生成相对baseUrl的模块ID
  */
-function parseDep(filePath, baseUrl){
+function parseDep(filePath, baseUrl, moduleIdPrefix){
     filePath = filePath.replace(/\\/g, '/')
     baseUrl = baseUrl.replace(/\\/g, '/')
     var dep = filePath.replace(baseUrl, '')
-    return dep.substring(0, dep.length - 3)
+    dep = dep.substring(0, dep.length - 3)
+    if (moduleIdPrefix) {
+        dep = moduleIdPrefix + dep
+    }
+    return dep
 }
 
 /*
@@ -135,7 +139,7 @@ function readModule(moduleId, filePath){
  * return { String } 文件地址
  */
 function mergePath(moduleId, options){
-    return options.baseUrl + options.alias[moduleId]
+    return path.join(options.baseUrl, options.alias[moduleId])
 }
 
 /*
@@ -187,15 +191,20 @@ function getModuleId(filePath, options){
  * param { String } moduleId 模块ID
  * param { String } filePath 模块文件路径
  * param { Object } relativeDep 文件的所有依赖
+ * param { Object } options 配置对象
  * return { Buffer } 文件
  */
-function tranform(moduleId, filePath, relativeDep){
+function tranform(moduleId, filePath, relativeDep, options){
     var content = ''
+    var parseDefineReg = /define\s*\(/
+    if (options.parseAllDefine) {
+        parseDefineReg = /define\s*\(/g
+    }
     if(filePath && fs.existsSync(filePath)){
         content = fs.readFileSync(filePath).toString()
         content = content.replace(commentReg, '')
         if(moduleId){
-            content = content.replace(/define\s*\(/, 'define("' + moduleId + '", ')
+            content = content.replace(parseDefineReg, 'define("' + moduleId + '", ')
         }
         if(relativeDep){
             for(var key in relativeDep){
@@ -216,22 +225,23 @@ function tranform(moduleId, filePath, relativeDep){
  * param { Object } depStore 依赖存储对象
  * param { String } filePath 入口文件路径
  * param { String } moduleId 入口文件对应的模块ID
+ * param { Object } options 配置对象
  * return { Buffer } 合并后的Buffer
  */
-function concatDeps(depStore, filePath, moduleId){
+function concatDeps(depStore, filePath, moduleId, options){
     var buffers = [], deps = null
     deps = depStore.getAlias()
     for(var key in deps){
         if(fs.existsSync(deps[key])){
             buffers.push(
-                tranform(key, deps[key], depStore.getRelative()),
+                tranform(key, deps[key], depStore.getRelative(), options),
                 new Buffer('\n')
             )
         }else{
             depStore.addError(key, deps[key])
         }
     }
-    buffers.push(tranform(moduleId, filePath, depStore.getRelative()))
+    buffers.push(tranform(moduleId, filePath, depStore.getRelative(), options))
     return Buffer.concat(buffers)
 }
 
@@ -286,6 +296,7 @@ function buildLog(filePath, depStore){
  */
 function combo(options){
     options.supportRelative = options.supportRelative || false
+    options.parseAllDefine = options.parseAllDefine || false
     if(!options){
         gutil.log(gutil.colors.red(PLUGIN_NAME, 'The options param is required'))
     }
@@ -305,7 +316,7 @@ function combo(options){
             var moduleId = getModuleId(file.path, options)
             var depStore = new DepStore()
             analyseDeps(file.contents.toString(), file.path, options, depStore)
-            file.contents = concatDeps(depStore, file.path, moduleId)
+            file.contents = concatDeps(depStore, file.path, moduleId, options)
             buildLog(file.path, depStore)
             callback(null, file)
             depStore.destroy()

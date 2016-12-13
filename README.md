@@ -2,16 +2,6 @@
 
 > 一个根据配置合并js文件的gulp插件，合并时会自动提取模块间的依赖
 
-## 重要更新
-
-添加对相对路径的支持，比如下面几种情况:
-
-```
-1. require('./test')
-2. require('../test')
-3. require('test')
-```
-
 ## Install
 
 ```
@@ -58,6 +48,14 @@ var test = require('apps/modules/test')
 #### exclude { Array }
 
 可选参数, 要忽略的模块ID，合并时在exclude配置的模块ID会直接忽略
+
+#### parseAllDefine { Boolean }
+
+可选参数，默认是false，当以一个文件里有多个 define 时，是否都要添加模块 ID
+
+#### moduleIdPrefix { String }
+
+可选参数，默认是 ''，分析模块 ID 时，自动添加模块 ID 的前缀，alias 配置的 模块 ID 不会添加此前缀。
 
 ## Usage
 
