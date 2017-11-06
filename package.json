@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/PeterMu/gulp-alias-combo",
   "devDependencies": {
-    "gulp": "^3.9.0"
+    "gulp": "^3.9.1"
   },
   "dependencies": {
     "gulp-util": "^3.0.5",

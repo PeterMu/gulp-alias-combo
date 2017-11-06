@@ -25,7 +25,6 @@ var DepStore = require('./libs/dep_store')
  */
 function analyseDeps(content, filePath, options, depStore){
     var relativePath = '', parsedDep = null, deps = null
-    content = content.replace(commentReg, '')
     deps = getDeps(content, options.exclude)
     if(deps.length > 0){
         deps.forEach(function(dep){
@@ -202,7 +201,6 @@ function tranform(moduleId, filePath, relativeDep, options){
     }
     if(filePath && fs.existsSync(filePath)){
         content = fs.readFileSync(filePath).toString()
-        content = content.replace(commentReg, '')
         if(moduleId){
             content = content.replace(parseDefineReg, 'define("' + moduleId + '", ')
         }
